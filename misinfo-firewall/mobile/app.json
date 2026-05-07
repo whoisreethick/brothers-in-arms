@@ -4,6 +4,6 @@
     "slug": "misinfo-firewall",
     "version": "1.0.0",
     "orientation": "portrait",
-    "platforms": ["ios", "android"]
+    "platforms": ["ios", "android", "web"]
   }
 }

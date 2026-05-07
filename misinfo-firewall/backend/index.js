@@ -31,6 +31,7 @@ async function analyzeWithGroq(message, factResults) {
 
   const prompt = `You are a misinformation detection expert focused on content circulating in India via WhatsApp.
 
+When analysing claims, suggest credible sources that are RELEVANT to the specific topic. For Indian economy/policy use RBI, PIB, PTI. For health use WHO, AIIMS, CDC. For science use peer-reviewed journals. For general viral claims use Snopes, AltNews, or Boom Live. Do NOT suggest financial or government sources for personal or social claims.
 Analyze this message for misinformation:
 "${message}"
 
@@ -40,19 +41,21 @@ Respond in this EXACT JSON format, nothing else:
 {
   "verdict": "TRUE" or "FALSE" or "MISLEADING" or "UNVERIFIED",
   "confidence": a number 0-100,
-  "summary": "2-3 sentence plain English explanation of your verdict",
+  "summary": "4-5 sentence detailed explanation covering what the claim says, what evidence exists, what official sources indicate, and why the verdict was given",
   "red_flags": ["flag1", "flag2"],
-  "advice": "One sentence on what the reader should do"
+  "advice": "4-5 detailed sentences on what the reader should do. If misleading, explain what is actually true. If false, state the correct information and suggest safety measures for handling fake messages. If true or unverified, suggest relevant topics to study further.",
+  "credible_sources": [
+    { "name": "Source name e.g. WHO, RBI, PIB Fact Check", "url": "https://actual-url.org" },
+    { "name": "Another source", "url": "https://actual-url.org" }
+  ]
 }`;
 
-  // Collect streamed chunks into one string
   const stream = await groq.chat.completions.create({
     model: "llama-3.3-70b-versatile",
     messages: [{ role: "user", content: prompt }],
     temperature: 1,
     max_completion_tokens: 1024,
     top_p: 1,
-    // reasoning_effort: "medium",
     stream: true,
     stop: null,
   });
@@ -84,7 +87,6 @@ exports.checkMessage = async (req, res) => {
 
   try {
     console.log("Checking:", message.substring(0, 80) + "...");
-    // Run fact check first, then pass results to AI for better context
     const factResults = await checkFactAPI(message);
     const analysis = await analyzeWithGroq(message, factResults);
 
@@ -94,6 +96,7 @@ exports.checkMessage = async (req, res) => {
       summary: analysis.summary,
       red_flags: analysis.red_flags || [],
       advice: analysis.advice,
+      credible_sources: analysis.credible_sources || [],
       sources: factResults,
       checked_at: new Date().toISOString(),
     });
