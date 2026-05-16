@@ -29,8 +29,7 @@ async function analyzeWithGroq(message, factResults) {
       ? `Related fact checks found:\n${factResults.map((f) => `- "${f.text}" rated as "${f.rating}" by ${f.publisher}`).join("\n")}`
       : "No related fact checks found in database.";
 
-  const prompt = `You are a misinformation detection expert focused on content circulating in India via WhatsApp.
-
+  const prompt = `You are a misinformation detection expert focused on content circulating in India via WhatsApp. The message may be in any language including Hindi, Kannada, Tamil, Telugu, Malayalam, Marathi, Bengali, or English. Auto-detect the language, fully understand the message in that language, and always return your analysis in English regardless of the input language.
 When analysing claims, suggest credible sources that are RELEVANT to the specific topic. For Indian economy/policy use RBI, PIB, PTI. For health use WHO, AIIMS, CDC. For science use peer-reviewed journals. For general viral claims use Snopes, AltNews, or Boom Live. Do NOT suggest financial or government sources for personal or social claims.
 Analyze this message for misinformation:
 "${message}"
